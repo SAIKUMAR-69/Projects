@@ -12,6 +12,7 @@ from services.openai_client import generate_job_fit
 
 ALLOWED_EXTENSIONS = {"pdf", "docx", "txt"}
 
+
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
@@ -119,6 +120,9 @@ def create_app(test_config=None):
 
     return app
 
+
+# ✅ Create the app instance for Gunicorn/Railway to use
+app = create_app()
+
 if __name__ == "__main__":
-    app = create_app()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
