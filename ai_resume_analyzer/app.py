@@ -34,8 +34,8 @@ def create_app(test_config=None):
     @app.route("/", methods=["GET"])
     def index():
         jobs = Job.query.order_by(Job.title.asc()).all()
-        recent = Evaluation.query.order_by(desc(Evaluation.created_at)).limit(5).all()
-        return render_template("index.html", jobs=jobs, recent=recent)
+        # Removed showing past evaluations for privacy
+        return render_template("index.html", jobs=jobs)
 
     @app.route("/analyze", methods=["POST"])
     def analyze():
@@ -103,17 +103,6 @@ def create_app(test_config=None):
             summary=summary,
             recommendations=recommendations
         )
-
-    @app.route("/clear_history", methods=["POST"])
-    def clear_history():
-        try:
-            num_deleted = Evaluation.query.delete()
-            db.session.commit()
-            flash(f"Cleared {num_deleted} evaluation(s).", "success")
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error clearing history: {str(e)}", "error")
-        return redirect(url_for("index"))
 
     def allowed_file(filename):
         return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
