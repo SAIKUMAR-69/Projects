@@ -1,0 +1,33 @@
+id,title,company,location,description,skills
+1,Software Engineer,TechCorp,Remote,Develop scalable web apps,Python;Django;SQL;Docker
+2,Data Scientist,DataWorks,New York,Analyze large datasets,Python;Pandas;Scikit-learn;ML
+3,Frontend Developer,Webify,San Francisco,Build modern UI,JavaScript;React;CSS;HTML
+4,DevOps Engineer,CloudNet,Bangalore,Automate infrastructure,AWS;Terraform;CI/CD;Kubernetes
+5,Machine Learning Engineer,AI Labs,London,Build ML models for NLP,Python;TensorFlow;PyTorch;NLP
+6,Backend Engineer,FinTechPro,Chicago,Design APIs and services,Java;Spring Boot;PostgreSQL;REST
+7,Mobile Developer,Appify,Sydney,Develop mobile apps,Kotlin;Swift;Flutter;React Native
+8,Data Engineer,DataFlow,Boston,Manage ETL pipelines,Python;Airflow;Hadoop;Spark
+9,Full Stack Developer,NextGen,Remote,End-to-end application development,Node.js;React;MongoDB;GraphQL
+10,Cybersecurity Analyst,SecureIT,Washington DC,Monitor security incidents,SIEM;IDS;Firewalls;Linux
+11,AI Researcher,DeepMind Labs,Paris,Research AI models,Python;Deep Learning;RL;Mathematics
+12,QA Engineer,TestRight,Bangalore,Automate test suites,Selenium;Cypress;Python;Jest
+13,System Administrator,NetSys,New Delhi,Manage enterprise servers,Linux;Windows Server;Networking;Bash
+14,Product Manager,InnoTech,Berlin,Define product roadmaps,Agile;Scrum;JIRA;Stakeholder Management
+15,UI/UX Designer,PixelWorks,Los Angeles,Design user experiences,Figma;Sketch;Wireframing;Prototyping
+16,Cloud Architect,Cloudify,San Jose,Design scalable cloud systems,AWS;Azure;GCP;Terraform
+17,Database Administrator,DataKeep,Chicago,Optimize database performance,MySQL;Oracle;PostgreSQL;Backup
+18,Blockchain Developer,CryptoChain,Remote,Build decentralized apps,Solidity;Ethereum;Web3.js;Smart Contracts
+19,AI Prompt Engineer,OpenAI Partners,Remote,Design and test AI prompts,Python;LLMs;NLP;Prompt Engineering
+20,Embedded Systems Engineer,ChipTech,Tokyo,Develop IoT firmware,C;C++;ARM;RTOS
+21,Game Developer,GameWorks,Montreal,Develop 3D games,Unity;Unreal Engine;C#;C++
+22,Business Analyst,FinSolve,London,Analyze business requirements,SQL;Excel;Power BI;UML
+23,Cloud Security Engineer,SecuCloud,Singapore,Secure cloud platforms,AWS Security;IAM;Kubernetes;Encryption
+24,Data Visualization Engineer,InsightLabs,Remote,Build dashboards,Tableau;PowerBI;D3.js;Python
+25,NLP Engineer,VoiceTech,Seattle,Develop speech recognition models,Python;PyTorch;NLP;Transformers
+26,Robotics Engineer,AutoBots,Detroit,Develop robot control systems,C++;ROS;Sensors;Path Planning
+27,AI Ethics Specialist,MindfulAI,Remote,Ensure ethical AI practices,AI Policy;Ethics;Fairness;Governance
+28,Network Engineer,NetConnect,Dubai,Design and manage networks,Cisco;LAN;WAN;VPN
+29,Site Reliability Engineer,ScaleOps,Dublin,Ensure system reliability,Python;Kubernetes;Monitoring;CI/CD
+30,AR/VR Developer,ImmersionX,Los Angeles,Build AR/VR experiences,Unity;ARKit;ARCore;C#
+31,Technical Writer,DocuTech,Remote,Write technical documentation,Markdown;Confluence;API Docs;Git
+32,Big Data Engineer,DataForge,Amsterdam,Process large datasets,Hadoop;Spark;Scala;Kafka

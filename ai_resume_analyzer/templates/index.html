@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="grid grid-2">
+    <!-- Resume Analysis Card -->
+    <div class="card">
+      <h3>Analyze a Resume</h3>
+      <p class="muted">Upload a resume and select a job to get a tailored fit report.</p>
+      <form action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data">
+
+        <label style="margin-top:12px">Your Name</label>
+        <input type="text" name="candidate_name" placeholder="Enter your name" required />
+
+        <label style="margin-top:12px">Resume (PDF, DOCX, or TXT)</label>
+        <input type="file" name="resume" required />
+
+        <label style="margin-top:12px">Target Job</label>
+        <select name="job_id" id="job_id">
+          <option value="custom">-- Custom (paste JD) --</option>
+          {% for j in jobs %}
+            <option value="{{ j.id }}">{{ j.title }}</option>
+          {% endfor %}
+        </select>
+
+        <div style="margin-top:16px">
+          <button class="btn" type="submit">Analyze Resume →</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Recent Evaluations Card -->
+    <div class="card">
+      <h3>Recent Evaluations</h3>
+
+      {% if recent %}
+        <form action="{{ url_for('clear_history') }}" method="post" style="margin-bottom:12px;">
+          <button class="btn" type="submit" style="background:#e74c3c;color:white;">Clear History</button>
+        </form>
+
+        <div>
+          {% for r in recent %}
+            <div class="card" style="margin-bottom:8px">
+              <div class="row" style="justify-content:space-between">
+                <div>
+                  <div class="muted">Candidate</div>
+                  <div><strong>{{ r.candidate.name }}</strong></div>
+                </div>
+                <div style="text-align:right">
+                  <div class="muted">Score</div>
+                  <div class="score">{{ r.score }}</div>
+                </div>
+              </div>
+              <div class="muted" style="margin-top:8px">{{ r.summary[:160] }}...</div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="muted">No evaluations yet. Run your first analysis!</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

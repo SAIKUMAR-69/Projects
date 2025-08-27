@@ -1,0 +1,17 @@
+cd %USERPROFILE%\Desktop\Projects\ai_resume_analyzer
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+
+-------------------------------------------------------------------------
+To Reset DataBase
+del instance\resume_analyzer.db
+python -m scripts.init_db
+python -m scripts.seed_jobs
+
+---------------------------------------------------------------------------
+To Host the Server
+python app.py
+
+------------------------------------------------------------------------
+To Open jobs csv file
+notepad data\jobs_seed.csv
