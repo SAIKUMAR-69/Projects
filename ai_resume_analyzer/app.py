@@ -1,3 +1,4 @@
+import os
 import re
 from collections import Counter
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -12,13 +13,15 @@ ALLOWED_EXTENSIONS = {"pdf", "docx", "txt"}
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY="dev-secret",
-        SQLALCHEMY_DATABASE_URI="sqlite:///" + os.path.join(app.instance_path, "resume_analyzer.db"),
+        SECRET_KEY=os.environ.get("FLASK_SECRET_KEY", "dev-secret"),
+        SQLALCHEMY_DATABASE_URI=os.environ.get(
+            "DATABASE_URL",
+            "sqlite:///" + os.path.join(app.instance_path, "resume_analyzer.db")
+        ),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        MAX_CONTENT_LENGTH=10 * 1024 * 1024,
+        MAX_CONTENT_LENGTH=10 * 1024 * 1024,  # 10 MB
     )
 
-    import os
     os.makedirs(app.instance_path, exist_ok=True)
     db.init_app(app)
 
@@ -81,16 +84,33 @@ def create_app(test_config=None):
             matched_keywords = top_keywords[:3]  # fallback
 
         # ---------- 100 expressive summaries & recommendations ----------
-        summaries = [
-            f"This resume shows strong experience in {', '.join(matched_keywords)} and demonstrates capability to contribute effectively as a {job_title}."
-            for _ in range(100)
-        ]
-        recommendations = [
-            f"Consider expanding your hands-on experience with {', '.join(matched_keywords)} to align more closely with {job_title} responsibilities and expectations."
-            for _ in range(100)
+        summary_templates = [
+            "Demonstrates solid experience with {keywords}, showing readiness for the {job_title} role.",
+            "Proven skills in {keywords} indicate strong alignment with {job_title} responsibilities.",
+            "Resume reflects proficiency in {keywords}, valuable for a successful {job_title}.",
+            "Shows ability to leverage {keywords} effectively in {job_title} tasks.",
+            "Highlights achievements involving {keywords}, supporting suitability for {job_title}."
         ]
 
-        # Deterministic selection based on matched keywords count
+        recommendation_templates = [
+            "Consider expanding experience in {keywords} to enhance fit for {job_title}.",
+            "Strengthening skills with {keywords} could improve impact as a {job_title}.",
+            "Focus on gaining more hands-on exposure in {keywords} to excel in {job_title}.",
+            "Enhancing proficiency in {keywords} will better align with {job_title} expectations.",
+            "Developing deeper expertise in {keywords} can increase success as a {job_title}."
+        ]
+
+        summaries = []
+        recommendations = []
+
+        kw_sample = ", ".join(matched_keywords)
+        for i in range(100):
+            summary_template = summary_templates[i % len(summary_templates)]
+            recommendation_template = recommendation_templates[i % len(recommendation_templates)]
+            summaries.append(summary_template.format(keywords=kw_sample, job_title=job_title))
+            recommendations.append(recommendation_template.format(keywords=kw_sample, job_title=job_title))
+
+        # Deterministic selection based on number of matched keywords
         index = min(len(matched_keywords)-1, 99)
         selected_summary = summaries[index]
         selected_recommendation = recommendations[index]
