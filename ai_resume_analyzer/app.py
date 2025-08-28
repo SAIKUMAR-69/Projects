@@ -83,35 +83,49 @@ def create_app(test_config=None):
         if not matched_keywords:
             matched_keywords = top_keywords[:3]  # fallback
 
-        # ---------- 100 expressive summaries & recommendations ----------
-        summary_templates = [
-            "Demonstrates solid experience with {keywords}, showing readiness for the {job_title} role.",
-            "Proven skills in {keywords} indicate strong alignment with {job_title} responsibilities.",
-            "Resume reflects proficiency in {keywords}, valuable for a successful {job_title}.",
-            "Shows ability to leverage {keywords} effectively in {job_title} tasks.",
-            "Highlights achievements involving {keywords}, supporting suitability for {job_title}."
-        ]
+        kw_sample = ", ".join(matched_keywords)
 
-        recommendation_templates = [
-            "Consider expanding experience in {keywords} to enhance fit for {job_title}.",
-            "Strengthening skills with {keywords} could improve impact as a {job_title}.",
-            "Focus on gaining more hands-on exposure in {keywords} to excel in {job_title}.",
-            "Enhancing proficiency in {keywords} will better align with {job_title} expectations.",
-            "Developing deeper expertise in {keywords} can increase success as a {job_title}."
-        ]
+        # ---------- Tailored templates based on keyword match count ----------
+        match_count = len(matched_keywords)
+        if match_count <= 3:
+            summary_templates = [
+                "This resume demonstrates some experience with {keywords}, showing potential to grow into the {job_title} role.",
+                "Candidate has initial exposure to {keywords}. Focusing on these areas could strengthen fit for {job_title}."
+            ]
+            recommendation_templates = [
+                "Consider gaining more hands-on experience with {keywords} to increase alignment with {job_title} requirements.",
+                "Focus on improving proficiency in {keywords} to enhance candidacy for {job_title}."
+            ]
+        elif match_count <= 6:
+            summary_templates = [
+                "Shows solid experience in {keywords}, indicating good alignment with {job_title} responsibilities.",
+                "Resume reflects meaningful work involving {keywords}, supporting suitability for {job_title}."
+            ]
+            recommendation_templates = [
+                "Continue building expertise in {keywords} to further excel as a {job_title}.",
+                "Enhancing skills with {keywords} can improve readiness for {job_title} tasks."
+            ]
+        else:
+            summary_templates = [
+                "Demonstrates strong expertise in {keywords}, making the candidate highly suitable for {job_title}.",
+                "Resume highlights exceptional proficiency in {keywords}, aligning perfectly with {job_title} expectations."
+            ]
+            recommendation_templates = [
+                "Maintain and expand experience with {keywords} to maximize impact as a {job_title}.",
+                "Further application of {keywords} will continue to strengthen suitability for {job_title}."
+            ]
 
+        # Generate 100 varied summaries/recommendations using templates
         summaries = []
         recommendations = []
-
-        kw_sample = ", ".join(matched_keywords)
         for i in range(100):
             summary_template = summary_templates[i % len(summary_templates)]
             recommendation_template = recommendation_templates[i % len(recommendation_templates)]
             summaries.append(summary_template.format(keywords=kw_sample, job_title=job_title))
             recommendations.append(recommendation_template.format(keywords=kw_sample, job_title=job_title))
 
-        # Deterministic selection based on number of matched keywords
-        index = min(len(matched_keywords)-1, 99)
+        # Deterministic selection: use min(match_count-1, 99)
+        index = min(match_count - 1, 99)
         selected_summary = summaries[index]
         selected_recommendation = recommendations[index]
 
