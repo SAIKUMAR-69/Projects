@@ -1,21 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
-  <div class="card">
+<div class="card">
     <h3>Fit Report — {{ job_title }}</h3>
 
     <div class="row" style="justify-content:space-between; margin-bottom:16px">
-      <div>
-        <div class="muted">Candidate</div>
-        <div><strong>{{ candidate.name }}</strong></div>
-      </div>
-      <div>
-        <div class="muted">Overall Score</div>
-        <div class="score">{{ score }}</div>
-      </div>
+        <div>
+            <div class="muted">Candidate</div>
+            <div><strong>{{ candidate.name }}</strong></div>
+        </div>
+        <div>
+            <div class="muted">Overall Score</div>
+            <div class="score">{{ score }}</div>
+        </div>
     </div>
 
+    {% for item in canned_responses %}
+        <h4>{{ item.summary }}</h4>
+        <p>{{ item.recommendations }}</p>
+        <hr>
+    {% endfor %}
+
     <div style="margin-top:16px">
-      <a href="{{ url_for('index') }}" class="btn">Evaluate Another Resume</a>
+        <a href="{{ url_for('index') }}" class="btn">Evaluate Another Resume</a>
     </div>
-  </div>
+</div>
 {% endblock %}
