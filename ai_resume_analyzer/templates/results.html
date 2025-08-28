@@ -14,11 +14,11 @@
         </div>
     </div>
 
-    {% for item in canned_responses %}
-        <h4>{{ item.summary }}</h4>
-        <p>{{ item.recommendations }}</p>
-        <hr>
-    {% endfor %}
+    <h4>Summary</h4>
+    <p>{{ summary }}</p>
+
+    <h4>Recommendation</h4>
+    <p>{{ recommendation }}</p>
 
     <div style="margin-top:16px">
         <a href="{{ url_for('index') }}" class="btn">Evaluate Another Resume</a>
