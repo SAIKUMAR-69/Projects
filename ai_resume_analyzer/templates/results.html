@@ -15,10 +15,10 @@
     </div>
 
     <h4>Summary</h4>
-    <p>{{ summary }}</p>
+    <p>{{ summary|safe }}</p>
 
     <h4>Recommendation</h4>
-    <p>{{ recommendation }}</p>
+    <p>{{ recommendation|safe }}</p>
 
     <div style="margin-top:16px">
         <a href="{{ url_for('index') }}" class="btn">Evaluate Another Resume</a>
