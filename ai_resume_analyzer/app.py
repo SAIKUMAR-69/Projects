@@ -85,37 +85,25 @@ def create_app(test_config=None):
 
         kw_sample = ", ".join(matched_keywords)
 
-        # ---------- Tailored templates based on keyword match count ----------
-        match_count = len(matched_keywords)
-        if match_count <= 3:
-            summary_templates = [
-                "This resume demonstrates some experience with {keywords}, showing potential to grow into the {job_title} role.",
-                "Candidate has initial exposure to {keywords}. Focusing on these areas could strengthen fit for {job_title}."
-            ]
-            recommendation_templates = [
-                "Consider gaining more hands-on experience with {keywords} to increase alignment with {job_title} requirements.",
-                "Focus on improving proficiency in {keywords} to enhance candidacy for {job_title}."
-            ]
-        elif match_count <= 6:
-            summary_templates = [
-                "Shows solid experience in {keywords}, indicating good alignment with {job_title} responsibilities.",
-                "Resume reflects meaningful work involving {keywords}, supporting suitability for {job_title}."
-            ]
-            recommendation_templates = [
-                "Continue building expertise in {keywords} to further excel as a {job_title}.",
-                "Enhancing skills with {keywords} can improve readiness for {job_title} tasks."
-            ]
-        else:
-            summary_templates = [
-                "Demonstrates strong expertise in {keywords}, making the candidate highly suitable for {job_title}.",
-                "Resume highlights exceptional proficiency in {keywords}, aligning perfectly with {job_title} expectations."
-            ]
-            recommendation_templates = [
-                "Maintain and expand experience with {keywords} to maximize impact as a {job_title}.",
-                "Further application of {keywords} will continue to strengthen suitability for {job_title}."
-            ]
+        # ---------- Tailored, expressive summary templates ----------
+        summary_templates = [
+            "The candidate demonstrates hands-on experience in {keywords}, showcasing readiness for the {job_title} position.",
+            "This resume highlights expertise in {keywords}, indicating strong alignment with {job_title} responsibilities.",
+            "Shows a solid track record working with {keywords}, which supports suitability for the {job_title} role.",
+            "Candidate's experience in {keywords} reflects capability to contribute effectively as a {job_title}.",
+            "Resume presents clear achievements involving {keywords}, demonstrating competence for {job_title}."
+        ]
 
-        # Generate 100 varied summaries/recommendations using templates
+        # ---------- Tailored, forward-looking recommendation templates ----------
+        recommendation_templates = [
+            "To further strengthen the profile, gaining deeper experience with {keywords} would be beneficial for the {job_title} role.",
+            "Consider focusing on projects involving {keywords} to enhance readiness for {job_title} responsibilities.",
+            "Expanding practical exposure to {keywords} could improve overall alignment with {job_title} expectations.",
+            "Developing advanced skills in {keywords} can boost effectiveness in {job_title} tasks.",
+            "Targeted experience in {keywords} will help maximize potential as a {job_title}."
+        ]
+
+        # Generate 100 varied summaries and recommendations
         summaries = []
         recommendations = []
         for i in range(100):
@@ -124,8 +112,8 @@ def create_app(test_config=None):
             summaries.append(summary_template.format(keywords=kw_sample, job_title=job_title))
             recommendations.append(recommendation_template.format(keywords=kw_sample, job_title=job_title))
 
-        # Deterministic selection: use min(match_count-1, 99)
-        index = min(match_count - 1, 99)
+        # Deterministic selection based on matched keywords
+        index = min(len(matched_keywords) - 1, 99)
         selected_summary = summaries[index]
         selected_recommendation = recommendations[index]
 
