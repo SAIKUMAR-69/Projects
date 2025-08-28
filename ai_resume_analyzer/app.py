@@ -8,7 +8,6 @@ from werkzeug.utils import secure_filename
 from models import db, Candidate, Job, Evaluation
 from services.resume_parser import extract_text_from_upload
 from services.scoring import keyword_score, normalize_score
-from services.openai_client import generate_job_fit
 
 ALLOWED_EXTENSIONS = {"pdf", "docx", "txt"}
 
@@ -34,7 +33,6 @@ def create_app(test_config=None):
     @app.route("/", methods=["GET"])
     def index():
         jobs = Job.query.order_by(Job.title.asc()).all()
-        # Removed showing past evaluations for privacy
         return render_template("index.html", jobs=jobs)
 
     @app.route("/analyze", methods=["POST"])
@@ -64,7 +62,7 @@ def create_app(test_config=None):
         # Extract text from resume
         resume_text = extract_text_from_upload(uploaded_path)
 
-        # Get candidate name from form (default "Candidate")
+        # Get candidate name
         candidate_name = request.form.get("candidate_name", "Candidate")
 
         # Persist candidate
@@ -79,16 +77,21 @@ def create_app(test_config=None):
         kw_score = keyword_score(resume_text, job_desc)
         norm = normalize_score(kw_score)
 
-        # LLM-based analysis (optional)
-        summary, recommendations = generate_job_fit(resume_text, job_title, job_desc)
+        # ---------- BRUTE-FORCE SUMMARY & RECOMMENDATIONS ----------
+        canned_responses = []
+        for i in range(1, 51):
+            canned_responses.append({
+                "summary": f"Summary {i}: This resume demonstrates key skills relevant to {job_title}.",
+                "recommendations": f"Recommendation {i}: Consider improving on experience X to better match {job_title} requirements."
+            })
 
-        # Persist evaluation
+        # Persist evaluation (optional: store first response only)
         eval_obj = Evaluation(
             candidate_id=candidate.id,
             job_id=job.id,
             score=norm,
-            summary=summary,
-            recommendations=recommendations,
+            summary=canned_responses[0]["summary"],
+            recommendations=canned_responses[0]["recommendations"],
             created_at=datetime.utcnow()
         )
         db.session.add(eval_obj)
@@ -100,8 +103,7 @@ def create_app(test_config=None):
             job_title=job_title,
             job_desc=job_desc,
             score=norm,
-            summary=summary,
-            recommendations=recommendations
+            canned_responses=canned_responses
         )
 
     def allowed_file(filename):
