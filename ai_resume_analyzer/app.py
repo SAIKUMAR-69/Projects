@@ -1,4 +1,6 @@
 import os
+import re
+from collections import Counter
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
@@ -60,7 +62,7 @@ def create_app(test_config=None):
         file.save(uploaded_path)
 
         # Extract text from resume
-        resume_text = extract_text_from_upload(uploaded_path)
+        resume_text = extract_text_from_upload(uploaded_path).lower()
 
         # Get candidate name
         candidate_name = request.form.get("candidate_name", "Candidate")
@@ -71,27 +73,37 @@ def create_app(test_config=None):
         db.session.commit()
 
         job_title = job.title
-        job_desc = job.description
+        job_desc = job.description.lower()
 
         # Simple keyword scoring
         kw_score = keyword_score(resume_text, job_desc)
         norm = normalize_score(kw_score)
 
-        # ---------- BRUTE-FORCE SUMMARY & RECOMMENDATIONS ----------
-        canned_responses = []
-        for i in range(1, 51):
-            canned_responses.append({
-                "summary": f"Summary {i}: This resume demonstrates key skills relevant to {job_title}.",
-                "recommendations": f"Recommendation {i}: Consider improving on experience X to better match {job_title} requirements."
-            })
+        # ---------- 100 PREDEFINED SUMMARIES & RECOMMENDATIONS ----------
+        summaries = [f"Summary {i+1}: This resume demonstrates key skills relevant to {job_title}." for i in range(100)]
+        recommendations = [f"Recommendation {i+1}: Consider improving experience X to better match {job_title} requirements." for i in range(100)]
 
-        # Persist evaluation (optional: store first response only)
+        # ---------- Keyword-based deterministic selection ----------
+        words = re.findall(r'\b\w+\b', job_desc)
+        stop_words = {"and", "or", "the", "a", "an", "to", "for", "with", "in", "on", "of"}
+        keywords = [w for w in words if w not in stop_words]
+        top_keywords = [k for k, _ in Counter(keywords).most_common(10)]  # top 10 keywords
+
+        # Count how many top keywords appear in resume
+        matched_count = sum(1 for kw in top_keywords if kw in resume_text)
+        # Map matched count to 0-99 index
+        index = min(matched_count, 99)
+
+        selected_summary = summaries[index]
+        selected_recommendation = recommendations[index]
+
+        # Persist evaluation
         eval_obj = Evaluation(
             candidate_id=candidate.id,
             job_id=job.id,
             score=norm,
-            summary=canned_responses[0]["summary"],
-            recommendations=canned_responses[0]["recommendations"],
+            summary=selected_summary,
+            recommendations=selected_recommendation,
             created_at=datetime.utcnow()
         )
         db.session.add(eval_obj)
@@ -103,7 +115,8 @@ def create_app(test_config=None):
             job_title=job_title,
             job_desc=job_desc,
             score=norm,
-            canned_responses=canned_responses
+            summary=selected_summary,
+            recommendation=selected_recommendation
         )
 
     def allowed_file(filename):
