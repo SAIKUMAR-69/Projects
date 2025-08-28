@@ -1,31 +1,24 @@
-import os
 import re
 from collections import Counter
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import desc
-from datetime import datetime
 from werkzeug.utils import secure_filename
-
+from datetime import datetime
 from models import db, Candidate, Job, Evaluation
 from services.resume_parser import extract_text_from_upload
 from services.scoring import keyword_score, normalize_score
 
 ALLOWED_EXTENSIONS = {"pdf", "docx", "txt"}
 
-
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY=os.environ.get("FLASK_SECRET_KEY", "dev-secret"),
-        SQLALCHEMY_DATABASE_URI=os.environ.get(
-            "DATABASE_URL",
-            "sqlite:///" + os.path.join(app.instance_path, "resume_analyzer.db")
-        ),
+        SECRET_KEY="dev-secret",
+        SQLALCHEMY_DATABASE_URI="sqlite:///" + os.path.join(app.instance_path, "resume_analyzer.db"),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        MAX_CONTENT_LENGTH=10 * 1024 * 1024,  # 10 MB
+        MAX_CONTENT_LENGTH=10 * 1024 * 1024,
     )
 
+    import os
     os.makedirs(app.instance_path, exist_ok=True)
     db.init_app(app)
 
@@ -63,8 +56,6 @@ def create_app(test_config=None):
 
         # Extract text from resume
         resume_text = extract_text_from_upload(uploaded_path).lower()
-
-        # Get candidate name
         candidate_name = request.form.get("candidate_name", "Candidate")
 
         # Persist candidate
@@ -75,27 +66,39 @@ def create_app(test_config=None):
         job_title = job.title
         job_desc = job.description.lower()
 
-        # Simple keyword scoring
+        # Keyword scoring
         kw_score = keyword_score(resume_text, job_desc)
         norm = normalize_score(kw_score)
 
-        # ---------- 100 PREDEFINED SUMMARIES & RECOMMENDATIONS ----------
-        summaries = [f"Summary {i+1}: This resume demonstrates key skills relevant to {job_title}." for i in range(100)]
-        recommendations = [f"Recommendation {i+1}: Consider improving experience X to better match {job_title} requirements." for i in range(100)]
-
-        # ---------- Keyword-based deterministic selection ----------
+        # ---------- Extract keywords ----------
         words = re.findall(r'\b\w+\b', job_desc)
         stop_words = {"and", "or", "the", "a", "an", "to", "for", "with", "in", "on", "of"}
         keywords = [w for w in words if w not in stop_words]
-        top_keywords = [k for k, _ in Counter(keywords).most_common(10)]  # top 10 keywords
+        top_keywords = [k for k, _ in Counter(keywords).most_common(10)]
 
-        # Count how many top keywords appear in resume
-        matched_count = sum(1 for kw in top_keywords if kw in resume_text)
-        # Map matched count to 0-99 index
-        index = min(matched_count, 99)
+        matched_keywords = [kw for kw in top_keywords if kw in resume_text]
+        if not matched_keywords:
+            matched_keywords = top_keywords[:3]  # fallback
 
+        # ---------- 100 expressive summaries & recommendations ----------
+        summaries = [
+            f"This resume shows strong experience in {', '.join(matched_keywords)} and demonstrates capability to contribute effectively as a {job_title}."
+            for _ in range(100)
+        ]
+        recommendations = [
+            f"Consider expanding your hands-on experience with {', '.join(matched_keywords)} to align more closely with {job_title} responsibilities and expectations."
+            for _ in range(100)
+        ]
+
+        # Deterministic selection based on matched keywords count
+        index = min(len(matched_keywords)-1, 99)
         selected_summary = summaries[index]
         selected_recommendation = recommendations[index]
+
+        # Highlight keywords in bold
+        for kw in matched_keywords:
+            selected_summary = re.sub(f"\\b({kw})\\b", r"<b>\1</b>", selected_summary, flags=re.IGNORECASE)
+            selected_recommendation = re.sub(f"\\b({kw})\\b", r"<b>\1</b>", selected_recommendation, flags=re.IGNORECASE)
 
         # Persist evaluation
         eval_obj = Evaluation(
@@ -125,7 +128,7 @@ def create_app(test_config=None):
     return app
 
 
-# ✅ Create the app instance for Gunicorn/Railway to use
+# Create app instance
 app = create_app()
 
 if __name__ == "__main__":
